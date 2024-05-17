@@ -1,17 +1,35 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as CdkSample01 from '../lib/cdk-sample-01-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template, Match } from 'aws-cdk-lib/assertions';
+import { CdkSample01Stack } from '../lib/cdk-sample-01-stack';
+import { assert } from 'console';
+import { BucketEncryption } from 'aws-cdk-lib/aws-s3';
+import { Version } from 'aws-cdk-lib/aws-lambda';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/cdk-sample-01-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new CdkSample01.CdkSample01Stack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+function getTestAssets(): { app: cdk.App, stack: cdk.Stack } {
+    const app = new cdk.App();
+    const stack = new CdkSample01Stack(app, 'MyTestStack');
+    return { app, stack }
+}
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
-});
+describe(
+    'S3 Bucket Created', () => {
+        const { app, stack } = getTestAssets();
+        const template = Template.fromStack(stack);
+        test('Has correct properties', () => {
+            template.hasResourceProperties('AWS::S3::Bucket',
+                Match.objectLike({
+                    BucketEncryption: {
+                        ServerSideEncryptionConfiguration: [
+                            {
+                                ServerSideEncryptionByDefault: {
+                                    SSEAlgorithm: 'AES256'
+                                }
+                            }
+                        ]
+                    }
+                })
+            )
+
+        })
+    }
+)
