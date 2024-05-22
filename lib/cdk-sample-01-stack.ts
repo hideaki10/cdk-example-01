@@ -29,9 +29,7 @@ export class CdkSample01Stack extends cdk.Stack {
     // create a tag for s3 bucket
     cdk.Tags.of(bucket).add('bucket-backup', 'true')
 
-
     // 
-
     const backRole = this.createBackRole()
 
     // ceate backup vault
@@ -41,24 +39,11 @@ export class CdkSample01Stack extends cdk.Stack {
     })
 
     // create backup plan
-    // const backupPlan = new BackupPlan(this, 'thisBackupPlan', {
-    //   backupPlanName: "aws-backup-s3-sample-01-backup-plan",
-    //   backupVault: backupVault,
-    // })
     const backupPlan = BackupPlan.daily35DayRetention(
       this,
       "aws-backup-s3-sample-01-backup-plan",
       backupVault,
     )
-
-
-    // add backup plan rule
-    // backupPlan.addRule(
-    //   new BackupPlanRule({
-    //     ruleName: 'DailyBackup',
-    //     scheduleExpression: events.Schedule.cron({ minute: '0', hour: '4' })
-    //   })
-    // )
 
     // create backup selection
     backupPlan.addSelection('thisBackupSelection', {
@@ -67,9 +52,6 @@ export class CdkSample01Stack extends cdk.Stack {
         BackupResource.fromTag('bucket-backup', 'true'),
       ]
     })
-
-    // create grant for backup vault
-    // bucket.grantRead(new ServicePrincipal('backup.amazonaws.com'))
 
   }
 
